@@ -11,7 +11,7 @@ I am a third year PhD student studying computer architecture at MIT. I'm advised
 
 I'm currently working on [accelerating fully homomorphic encryption.](./micro21_fhe.pdf)
 
-I did my undergrad at CMU where I did research with Professor [Nathan Beckmann](https://www.cs.cmu.edu/~beckmann/).
+I did my undergrad at CMU. There, I got started in computer architecture research with Professor [Nathan Beckmann](https://www.cs.cmu.edu/~beckmann/).
 I had summer internships at Nvidia and beloved 90s tech company Yahoo.
 
 [Resume](/axelf_resume.pdf)
