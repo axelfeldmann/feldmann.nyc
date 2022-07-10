@@ -19,13 +19,13 @@ I had summer internships at Nvidia and beloved 90s tech company Yahoo.
 # Publications
 
 ### [__An Architecture to Accelerate Computation on Encrypted Data__](/toppicks22_fhe.pdf)
-__Axel Feldmann__\*, Nikola Samardzic\*, Aleksandar Krastev, Srinivas Devadas, Ronald Dreslinski, Christopher Peikert, Daniel Sanchez
+__Axel Feldmann__\*, Nikola Samardzic\*, Aleksandar Krastev, Srinivas Devadas, Ronald Dreslinski, Christopher Peikert, Daniel Sanchez\
 IEEE Micro Top Picks 2022
 
 \* authors contributed equally
 
 ### [__CraterLake: A Hardware Accelerator for Efficient Unbounded Computation on Encrypted Data__](/isca22_fhe.pdf)
-Nikola Samardzic, __Axel Feldmann__, Aleksandar Krastev, Nathan Manohar, Nicholas Genise, Srinivas Devadas, Karim Eldefrawy, Christopher Peikert, Daniel Sanchez
+Nikola Samardzic, __Axel Feldmann__, Aleksandar Krastev, Nathan Manohar, Nicholas Genise, Srinivas Devadas, Karim Eldefrawy, Christopher Peikert, Daniel Sanchez\
 ISCA 2022
 
 ### [__F1: A fast and programmable accelerator for fully homomorphic encryption__](/micro21_fhe.pdf)
