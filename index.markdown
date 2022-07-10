@@ -25,7 +25,7 @@ IEEE Micro Top Picks 2022
 \* authors contributed equally
 
 ### [__CraterLake: A Hardware Accelerator for Efficient Unbounded Computation on Encrypted Data__](/isca22_fhe.pdf)
-Nikola Samardzic, Axel Feldmann, Aleksandar Krastev, Nathan Manohar, Nicholas Genise, Srinivas Devadas, Karim Eldefrawy, Christopher Peikert, Daniel Sanchez
+Nikola Samardzic, __Axel Feldmann__, Aleksandar Krastev, Nathan Manohar, Nicholas Genise, Srinivas Devadas, Karim Eldefrawy, Christopher Peikert, Daniel Sanchez
 ISCA 2022
 
 ### [__F1: A fast and programmable accelerator for fully homomorphic encryption__](/micro21_fhe.pdf)
