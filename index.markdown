@@ -7,16 +7,22 @@ layout: home
 ---
 ![steam-fish-1](./axel.jpg){: width="250" }
 
-I am a third year PhD student studying computer architecture at MIT. I'm advised by Professor [Daniel Sanchez](http://people.csail.mit.edu/sanchez/). I am interested in working across the hardware-software interface: designing new hardware, but also building the software needed to efficiently use it.
+I am a fifth year PhD student studying computer architecture at MIT. I'm advised by Professor [Daniel Sanchez](http://people.csail.mit.edu/sanchez/). I am interested in working across the hardware-software interface: designing new hardware, but also building the software needed to efficiently use it.
 
-I'm currently working on [accelerating fully homomorphic encryption.](./micro21_fhe.pdf)
+I'm currently working on [accelerating sparse linear algebra](./micro23_factorization.pdf), and I'm super excited to learn more about
+scientific computing/numerical algorithms in general!
+I used to work on [accelerating computation on encrypted data](./micro21_fhe.pdf).
 
 I did my undergrad at CMU. There, I got started in computer architecture research with Professor [Nathan Beckmann](https://www.cs.cmu.edu/~beckmann/).
-I had summer internships at Nvidia and beloved 90s tech company Yahoo.
+I had summer internships at Cerebras Systems, Nvidia, and beloved 90s tech company Yahoo.
 
 [Resume](/axelf_resume.pdf)
 
 # Publications
+
+### [__Spatula: A Hardware Accelerator for Sparse Matrix Factorization__](/micro23_factorization.pdf)
+__Axel Feldmann__\*, Daniel Sanchez\
+MICRO 2023
 
 ### [__An Architecture to Accelerate Computation on Encrypted Data__](/toppicks22_fhe.pdf)
 __Axel Feldmann__\*, Nikola Samardzic\*, Aleksandar Krastev, Srinivas Devadas, Ronald Dreslinski, Christopher Peikert, Daniel Sanchez\
