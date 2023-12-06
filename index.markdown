@@ -21,7 +21,7 @@ I had summer internships at Cerebras Systems, Nvidia, and beloved 90s tech compa
 # Publications
 
 ### [__Spatula: A Hardware Accelerator for Sparse Matrix Factorization__](/micro23_factorization.pdf)
-__Axel Feldmann__\*, Daniel Sanchez\
+__Axel Feldmann__, Daniel Sanchez\
 MICRO 2023
 
 ### [__An Architecture to Accelerate Computation on Encrypted Data__](/toppicks22_fhe.pdf)
