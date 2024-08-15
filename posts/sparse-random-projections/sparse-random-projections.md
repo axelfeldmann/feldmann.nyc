@@ -9,6 +9,7 @@ Random projections are a powerful tool for dimensionality reduction. Specificall
 Due to this property, random projections are very useful in statistics and machine learning problems dealing with high-dimensional data.
 
 In this writeup, I won't focus on the *uses* of random projections, but rather on how to efficiently *implement* them in CUDA. **Specifically, I think that random projections nicely showcase both the benefits and challenges of exploiting sparsity on GPUs.**
+
 ### Problem Setup
 
 Let's first define the problem. We want to compute a product $Y = RA$ where:
@@ -20,9 +21,13 @@ Let's first define the problem. We want to compute a product $Y = RA$ where:
 The nice thing about random matrices is that you don’t need to store them. Instead, we can generate entries of $R$ on the fly and immediately multiply them with the appropriate entries of $A$. If we want to multiply with the same $R$ matrix multiple times, we just need to use the GPU’s pseudorandom generator seeding. [Prior work](https://github.com/MadryLab/trak/tree/main/fast_jl) has done this and it works great.
 
 Computing $Y = RA$ this way takes $k \cdot D \cdot b$ multiplications.
+
 ### An Algorithmic Improvement
 
-In general, a great way to speed up an algorithm is to achieve the same result with less work. A 2006 paper ["Very Sparse Random Projections"](https://hastie.su.domains/Papers/Ping/KDD06_rp.pdf) provides us a neat way of achieving this goal. Instead of generating (and multiplying by) by $R$, we can achieve statistically equivalent results by multiplying with a much _sparser_ matrix $S$, defined as follows:
+It would be cool if we could achieve the same result with less computation (and therefore get speedups).
+A 2006 paper ["Very Sparse Random Projections"](https://hastie.su.domains/Papers/Ping/KDD06_rp.pdf) provides us a neat way of achieving this goal. Instead of generating (and multiplying by) by $R$, we can achieve statistically equivalent results by multiplying with a much _sparser_ matrix $S$, defined in terms of a parameter $p$ (the probability that any entry is nonzero):
+
+<!-- FIXME: why is sparsity good? -->
 
 $$
 S_{i,j} = \begin{cases} 1 & \text{with probability } \frac{p}{2}, \\-1 & \text{with probability } \frac{p}{2}, \\0 & \text{with probability } 1 - p.\end{cases}
@@ -31,6 +36,7 @@ $$
 The resulting matrix only has $p$ times as many nonzeros as the original dense $R$ matrix. In the paper, they shows that constructing $S$ with $p = \frac{1}{\sqrt{D}}$ will still be good at preserving distances. Given the fact that we _don't actually need to evaluate multiplications by 0_, for $D$ = 100,000,000 this is a 10,000x reduction in work!
 
 Computing $Y = RA$ using this trick only takes $k \cdot \sqrt{D} \cdot b$ multiplications.
+
 ### General Approach
 
 While this huge work reduction is fantastic, we still need to figure out how to make it work in practice. For concreteness, let's look at a small example with $b = 4, D = 16, k = 5$:
@@ -57,6 +63,8 @@ Here's a visual depiction of the algorithm:
 <!-- For each row of the $S$ matrix, we can jump along our nonzeros, then multiply a 1 or -1 with a row of the $A$ matrix, eventually producing a row of the $Y$ matrix. -->
 
 ### CUDA Implementation v1
+
+<!-- This is the right way to do this -->
 
 A natural first attempt might look like this. A GPU has many threads, we assign each thread to a row of $S$, then have the thread execute the algorithm shown above.
 
@@ -89,7 +97,7 @@ __global__ void kernel_v1(TorchMatrix input, TorchMatrix output,
 	}
 }
 ```
-This approach works decently well. On an Nvidia A100, with $b = 32, k = 16,384, D = 10,000,000$, the dense baseline TRAK implementation ran in ~1.3 seconds. With a density of $\frac{1}{\sqrt{D}} = \frac{1}{10,000}$, this kernel runs in only 215 milliseconds... a 6$\times$ speedup!
+This approach works decently well. On an Nvidia A100, with $b = 32, k = 16,384, D = 10,000,000$, the [dense baseline implementation](https://github.com/MadryLab/trak/tree/main/fast_jl) ran in ~1.3 seconds. When $S$ has a density $\frac{1}{\sqrt{D}} = \frac{1}{10,000}$, this kernel runs in only 215 milliseconds... a 6$\times$ speedup!
 
 However, it is doing ~10,000$\times$ fewer multiplications. All of a sudden, 6$\times$ doesn't feel so good. This is an example of the _sparsity tax_. While we are doing _a lot_ less work, modern GPUs are _much_ more efficient at dense computations. So, much of what we gain by doing less work, we give back via less hardware-friendly code.
 
@@ -221,9 +229,11 @@ This code now runs in 21ms, giving a final speedup of 62$\times$ over the dense 
 
 v3 is not that different from v2. The only difference is that instead of only lane 0 generating random numbers, now each of the threads in a warp generates a `jump` and a `coeff` in parallel and stores them to a shared array. Then, once we have a fresh batch of 32 random pairs, the threads in a warp consume them one by one. If `idx >= D` before we have consumed all 32 of them, then we `goto` the end. Otherwise, we go back and generate a new batch of 32 random numbers and keep working.
 
-Notice that the performance improvement from v3 is actually pretty small over v2 (29ms $\rightarrow$ 21ms). Fundamentally, our main bottleneck is now the rate at which hardware is able to load `input` values from main memory. Our benchmark program will do roughly $10,000 \cdot 32 \cdot 16384 = 5.2 \cdot 10^9$ multiplications. Each multiplication requires loading a 32-bit (4 byte) floating point value from the `input` matrix. In total, this means that we load ~$2 \cdot 10^{10}$ bytes of data in 21ms: a rate of ~1 TB/s.
+Notice that the performance improvement from v3 is actually pretty small over v2 (29ms $\rightarrow$ 21ms). Fundamentally, our main bottleneck is now the rate at which hardware is able to load `input` values from main memory. Our benchmark program will do roughly $\sqrt{D} \cdot b \cdot k = 10,000 \cdot 32 \cdot 16384 = 5.2 \cdot 10^9$ multiplications. Each multiplication requires loading a 32-bit (4 byte) floating point value from the `input` matrix. In total, this means that we load ~$2 \cdot 10^{10}$ bytes of data in 21ms: a rate of ~1 TB/s.
 
 Looking at the [Nvidia A100 datasheet](https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf), we can see that hardware's memory bandwidth is ~1.5 TB/s (I'm using the 40GB PCIe one). So, in theory, even if we tried much harder to optimize this, we're looking at a _hard ceiling_ of a 1.5$\times$ further speedup. So, I think I'll call it a day :)
+
+<!-- This is the sparsity tax -->
 
 ### Summary
 
