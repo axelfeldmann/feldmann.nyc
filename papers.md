@@ -40,6 +40,9 @@ _ASPLOS 2020_
 
 Sometimes, I help friends write custom GPU kernels for their machine learning papers :)
 
+* __MiniFold: Simple, Fast, and Accurate Protein Structure Prediction__,
+Jeremy Wohlwend, Mateo Reveiz, Matt McPartlon, <u>Axel Feldmann</u>, Wengong Jin, Regina Barzilay, _under submission to Neurips 2024_
+
 * __DsDm: Model-Aware Dataset Selection with Datamodels__,
 Logan Engstrom, <u>Axel Feldmann</u>, Aleksander Mądry, 
 _ICML 2024_
