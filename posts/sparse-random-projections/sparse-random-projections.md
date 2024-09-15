@@ -49,11 +49,11 @@ Instead, let's use a trick from probability. Suppose we walk along the top row o
 ```
 idx = 0
 while idx < D:
-	jump = np.random.geometric(1 / np.sqrt(D))
-	idx += jump
+    jump = np.random.geometric(1 / np.sqrt(D))
+    idx += jump
 
-	sign = -1 if np.random.random() < 0.5 else 1
-	Y[i] += A[idx,:] * sign
+    sign = -1 if np.random.random() < 0.5 else 1
+    Y[i] += A[idx,:] * sign
 ```
 
 Here's a visual depiction of the algorithm:
@@ -70,31 +70,31 @@ A natural first attempt might look like this. A GPU has many threads, we assign 
 
 ```
 __global__ void kernel_v1(TorchMatrix input, TorchMatrix output,
-			uint32_t D, uint32_t k, uint32_t seed, float p) {
-			
-	float lambda_inv = 1.0 / p;
-	uint32_t row = blockIdx.x * blockDim.x + threadIdx.x;
+            uint32_t D, uint32_t k, uint32_t seed, float p) {
+            
+    float lambda_inv = 1.0 / p;
+    uint32_t row = blockIdx.x * blockDim.x + threadIdx.x;
 
-	curandStateXORWOW_t random_state;
-	curand_init(seed, row, 0, &random_state);
+    curandStateXORWOW_t random_state;
+    curand_init(seed, row, 0, &random_state);
 
-	uint32_t idx = 0;
-	while (true) {
-		float u = curand_uniform(&random_state);
-		uint32_t jump = (uint32_t) ((-logf(u)) * lambda_inv);
+    uint32_t idx = 0;
+    while (true) {
+        float u = curand_uniform(&random_state);
+        uint32_t jump = (uint32_t) ((-logf(u)) * lambda_inv);
 
-		bool sign = curand_uniform(&random_state) > 0.5;
-		float coeff = sign ? 1.0 : -1.0;
+        bool sign = curand_uniform(&random_state) > 0.5;
+        float coeff = sign ? 1.0 : -1.0;
 
-		idx += jump;
-		if (idx >= D) {
-			break;
-		}
-	
-		for (uint32_t i = 0; i < batch_size; i++) {
-			output[row][i] += coeff * input[idx][i];
-		}
-	}
+        idx += jump;
+        if (idx >= D) {
+            break;
+        }
+    
+        for (uint32_t i = 0; i < batch_size; i++) {
+            output[row][i] += coeff * input[idx][i];
+        }
+    }
 }
 ```
 This approach works decently well. On an Nvidia A100, with $b = 32, k = 16,384, D = 10,000,000$, the [dense baseline implementation](https://github.com/MadryLab/trak/tree/main/fast_jl) ran in ~1.3 seconds. When $S$ has a density $\frac{1}{\sqrt{D}} = \frac{1}{10,000}$, this kernel runs in only 215 milliseconds... a 6$\times$ speedup!
@@ -118,50 +118,50 @@ Instead, we can do the following:
 Code here:
 ```
 __global__ void kernel_v2(TorchMatrix input, TorchMatrix output,
-		uint32_t D, uint32_t k, uint32_t seed, float p) {
+        uint32_t D, uint32_t k, uint32_t seed, float p) {
 
-	float lambda_inv = 1.0 / p;
-	
-	uint32_t row = blockIdx.y * blockDim.y + threadIdx.y;
-	uint32_t lane = threadIdx.x;
+    float lambda_inv = 1.0 / p;
+    
+    uint32_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    uint32_t lane = threadIdx.x;
 
-	curandStateXORWOW_t random_state;
-	curand_init(my_seed, row, 0, &random_state);
+    curandStateXORWOW_t random_state;
+    curand_init(my_seed, row, 0, &random_state);
 
-	// data structures that allow us to share values across threads
-	__shared__ uint32_t idxs[warps_per_block];
-	__shared__ float coeffs[warps_per_block];
+    // data structures that allow us to share values across threads
+    __shared__ uint32_t idxs[warps_per_block];
+    __shared__ float coeffs[warps_per_block];
 
-	if (lane == 0) {
-		idxs[threadIdx.y] = 0;
-	}
+    if (lane == 0) {
+        idxs[threadIdx.y] = 0;
+    }
 
-	scalar_t accum = 0.0;
-	while (true) {
-		// One thread per warp is responsible for generating the index and coeff
-		if (lane == 0) {
-			float u = curand_uniform(&random_state);
-			uint32_t jump = (uint32_t) ((-logf(u)) * lambda_inv);
+    scalar_t accum = 0.0;
+    while (true) {
+        // One thread per warp is responsible for generating the index and coeff
+        if (lane == 0) {
+            float u = curand_uniform(&random_state);
+            uint32_t jump = (uint32_t) ((-logf(u)) * lambda_inv);
 
-			idxs[threadIdx.y] += jump;
-			bool sign = curand_uniform(&random_state) > 0.5;
+            idxs[threadIdx.y] += jump;
+            bool sign = curand_uniform(&random_state) > 0.5;
 
-			float coeff = sign ? 1.0 : -1.0;
-			coeffs[threadIdx.y] = coeff;
-		}
-		__syncwarp(); // warp-wide barrier
+            float coeff = sign ? 1.0 : -1.0;
+            coeffs[threadIdx.y] = coeff;
+        }
+        __syncwarp(); // warp-wide barrier
 
-		uint32_t idx = idxs[threadIdx.y];
-		float coeff = coeffs[threadIdx.y];
-		
-		if (idx >= D) {
-			break;
-		}
+        uint32_t idx = idxs[threadIdx.y];
+        float coeff = coeffs[threadIdx.y];
+        
+        if (idx >= D) {
+            break;
+        }
 
-		accum += coeff * input[idx][lane];
-		__syncwarp();
-	}
-	output[row][lane] = accum;
+        accum += coeff * input[idx][lane];
+        __syncwarp();
+    }
+    output[row][lane] = accum;
 }
 ```
 Running our $b = 32, k = 16,384, D = 10,000,000$ on the A100, this code takes in 29ms: a 7.4$\times$ speedup over v1 and a 45$\times$ speedup over the dense baseline.
@@ -179,50 +179,50 @@ _all_ the threads participate in random number generation:
 
 ```
 __global__ void kernel_v3(TorchMatrix input, TorchMatrix output,
-		uint32_t D, uint32_t k, uint32_t seed, float p) {
+        uint32_t D, uint32_t k, uint32_t seed, float p) {
 
-	float lambda_inv = 1.0 / p;
-	uint32_t row = blockIdx.y * blockDim.y + threadIdx.y;
-	uint32_t lane = threadIdx.x;
+    float lambda_inv = 1.0 / p;
+    uint32_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    uint32_t lane = threadIdx.x;
 
-	curandStateXORWOW_t random_state;
-	curand_init(my_seed, lane * k + row, 0, &random_state);
+    curandStateXORWOW_t random_state;
+    curand_init(my_seed, lane * k + row, 0, &random_state);
 
-	// thrs_per_warp is always 32 on current Nvidia hardware
-	__shared__ uint32_t jumps[warps_per_block][thrs_per_warp];
-	__shared__ float coeffs[warps_per_block][thrs_per_warp];
+    // thrs_per_warp is always 32 on current Nvidia hardware
+    __shared__ uint32_t jumps[warps_per_block][thrs_per_warp];
+    __shared__ float coeffs[warps_per_block][thrs_per_warp];
 
-	jumps[threadIdx.y][lane] = 0;
-	float accum = 0.0;
+    jumps[threadIdx.y][lane] = 0;
+    float accum = 0.0;
 
-	uint32_t idx = 0;
-	while (true) {
+    uint32_t idx = 0;
+    while (true) {
 
-		// generate a fresh batch of 32 (jump, coeff) pairs
-		float u = curand_uniform(&random_state);
-		uint32_t jump = (uint32_t) ((-logf(u)) * lambda_inv);
+        // generate a fresh batch of 32 (jump, coeff) pairs
+        float u = curand_uniform(&random_state);
+        uint32_t jump = (uint32_t) ((-logf(u)) * lambda_inv);
 
-		bool sign = curand_uniform(&random_state) > 0.5;
-		float coeff = sign ? 1.0 : -1.0;
+        bool sign = curand_uniform(&random_state) > 0.5;
+        float coeff = sign ? 1.0 : -1.0;
 
-		jumps[threadIdx.y][lane] = jump;
-		coeffs[threadIdx.y][lane] = coeff;
-		__syncwarp();
+        jumps[threadIdx.y][lane] = jump;
+        coeffs[threadIdx.y][lane] = coeff;
+        __syncwarp();
 
-		// consume our fresh batch of (jump, coeff) pairs
-		for (int i = 0; i < thrs_per_warp; i++) {
-			idx += jumps[threadIdx.y][i];
-			float coeff = coeffs[threadIdx.y][i];
+        // consume our fresh batch of (jump, coeff) pairs
+        for (int i = 0; i < thrs_per_warp; i++) {
+            idx += jumps[threadIdx.y][i];
+            float coeff = coeffs[threadIdx.y][i];
 
-			if (idx >= D) {
-				goto end;
-			}
-			accum += coeff * input[idx][lane];
-		}
-		__syncwarp();
-	}
+            if (idx >= D) {
+                goto end;
+            }
+            accum += coeff * input[idx][lane];
+        }
+        __syncwarp();
+    }
 end:
-	output[row][lane] = accum;
+    output[row][lane] = accum;
 }
 ```
 This code now runs in 21ms, giving a final speedup of 62$\times$ over the dense baseline.

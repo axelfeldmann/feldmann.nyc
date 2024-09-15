@@ -30,7 +30,7 @@ Consider the following code:
 Node* root = make_circular_linked_list(...);
 Node* cur = root;
 while (true) {
-	cur = cur->next;
+    cur = cur->next;
 }
 ```
 
@@ -83,17 +83,17 @@ We can generate a small (demo) program like this directly in x86 assembly:
 ```
 .global main
 main:
-	jmp l0
+    jmp l0
 l0:
-	jmp l2
+    jmp l2
 l1:
-	jmp l3
+    jmp l3
 l2:
-	jmp l4
+    jmp l4
 l3:
-	jmp l0
+    jmp l0
 l4:
-	jmp l1
+    jmp l1
 ```
 
 If we execute this program, then it will jump around as follows: `main -> l0 -> l2 -> l4 -> l1 -> l3 -> l0 -> ...` and repeat forever. To write this assembly, I provide two inputs: a prime number `P` and a smaller number `shift` to a simple Python script:
@@ -104,11 +104,11 @@ f.write("main:\n")
 f.write("\tjmp l0\n")
 
 for i in tqdm(range(P)):
-	f.write(f"l{i}:\n")
-	next_lbl = (i + shift) % P
-	f.write(f"\tjmp l{next_lbl}\n")
+    f.write(f"l{i}:\n")
+    next_lbl = (i + shift) % P
+    f.write(f"\tjmp l{next_lbl}\n")
 ```
-If I pick `shift` to be one of P's [primitive roots of unity](https://en.wikipedia.org/wiki/Root_of_unity), then the cycle of jumps will traverse _all_ the labels before returning to `l0`. This is very important to maximize the iCache footprint. We also want to pick `shift` to be sufficiently large that subsequent labels are not only on different cache lines, but also on different pages in virtual memory.
+Given that `P` is prime, I can pick any value of `shift` and the cycle will traverse _all_ the labels before returning to `l0`. This is very important to maximize the iCache footprint. We also want to pick `shift` to be sufficiently large that subsequent labels are not only on different cache lines, but also on different pages in virtual memory.
 
 For my experiments, I picked `P = 67108859` and `shift = 2346`, though plenty of other numbers work fine. Running it, I get the following results:
 ```
@@ -140,19 +140,19 @@ char src[N];
 char dst[N];
 
 inline void memcpy_rep(char *dst, char *src, size_t n) {
-	__asm__ volatile (
-		"cld\n\t"
-		"rep movsb\n\t" // <------------ the actual rep movsb instruction
-		: "+S"(src), "+D"(dst), "+c"(n)
-		:
-		: "memory"
-	);
+    __asm__ volatile (
+        "cld\n\t"
+        "rep movsb\n\t" // <------------ the actual rep movsb instruction
+        : "+S"(src), "+D"(dst), "+c"(n)
+        :
+        : "memory"
+    );
 }
 
 int main() {
-	while (1) {
-		memcpy_rep(dst, src, N);
-	}
+    while (1) {
+        memcpy_rep(dst, src, N);
+    }
 }
 ```
 So, for "accounting purposes", this is a _single instruction_ doing over **2 billion** iterations. In practice, we won't actually get an IPC of 1 / 2 billion. This is for 2 reasons: 
