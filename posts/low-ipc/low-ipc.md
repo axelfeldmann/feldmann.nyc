@@ -10,8 +10,8 @@ This seems absurd! And fundamentally, it is. However, there is some method to th
 
 The rules of our challenge are somewhat vague (it's more about presenting solutions that are within the "spirit of the challenge"), but I'll try to formalize them. Valid entries should be:
 - single threaded
-- it should be _actively executing instructions_ (not descheduled by the OS or something)
-- it should not involve _external devices_ (no waiting on I/O)
+- _actively executing instructions_ (not descheduled by the OS or something)
+- purely "on device." They should not involve _external devices_ (e.g. waiting on I/O)
 
 In this post, I will discuss a couple different approaches to this challenge.
 
@@ -170,5 +170,5 @@ I do think that this approach is basically cheating. It's just an accounting tri
 
 ### Conclusion
 
-In this post, I showcased 3 different tricks for writing extremely slow code. I have a couple more stashed away, and when I have time, I'll write about those too. However, I'm also always on the hunt for more! If you know any neat ways to achieve absurdly low IPC (on any architecture!), please tell me about it :)
+In this post, I showcased 3 different tricks for writing extremely slow code. I have a couple more stashed away, and when I have time, I'll write about those too. However, I'm also always on the hunt for more! If you know any neat ways to achieve absurdly low IPC (on any architecture!), please tell me about them :)
 
