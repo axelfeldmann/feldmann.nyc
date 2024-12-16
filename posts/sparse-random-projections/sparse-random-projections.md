@@ -68,7 +68,7 @@ Here's a visual depiction of the algorithm:
 
 A natural first attempt might look like this. A GPU has many threads, we assign each thread to a row of $S$, then have the thread execute the algorithm shown above.
 
-```
+```cuda
 __global__ void kernel_v1(TorchMatrix input, TorchMatrix output,
             uint32_t D, uint32_t k, uint32_t seed, float p) {
             
@@ -116,7 +116,7 @@ Instead, we can do the following:
 - assign each _lane_ (thread) within the warp to a column of $A$, effectively parallelizing the inner loop across each warp's lanes
 
 Code here:
-```
+```cuda
 __global__ void kernel_v2(TorchMatrix input, TorchMatrix output,
         uint32_t D, uint32_t k, uint32_t seed, float p) {
 
@@ -177,7 +177,7 @@ By partitioning our work differently (and thus fixing the uncoalesced loads), we
 One concession we made in v2 was doing random number generation serially within each warp. One thread generates random numbers while the others sit idly. In v3, we fix this by having
 _all_ the threads participate in random number generation:
 
-```
+```cuda
 __global__ void kernel_v3(TorchMatrix input, TorchMatrix output,
         uint32_t D, uint32_t k, uint32_t seed, float p) {
 

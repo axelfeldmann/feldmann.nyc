@@ -26,7 +26,7 @@ This is a reasonable question! The key distinction here is between code being *s
 "Linked lists are slow because of pointer chasing" is a commonly repeated nugget of wisdom. But, what exactly does it mean?
 
 Consider the following code:
-```
+```c++
 Node* root = make_circular_linked_list(...);
 Node* cur = root;
 while (true) {
@@ -97,7 +97,7 @@ l4:
 ```
 
 If we execute this program, then it will jump around as follows: `main -> l0 -> l2 -> l4 -> l1 -> l3 -> l0 -> ...` and repeat forever. To write this assembly, I provide two inputs: a prime number `P` and a smaller number `shift` to a simple Python script:
-```
+```python
 with open(f"jmps_{P}_{shift}.s", "w") as f:
 f.write(".global main\n")
 f.write("main:\n")
@@ -133,7 +133,7 @@ x86 has many instructions. Some of them can be prefixed with `rep`. `rep` repeat
 In fact, a common method of implementing `memcpy` is using `rep movsb`: a repeated `mov` byte instruction. On modern x86 machines, `rep movsb` is optimized (in hardware) to be extra efficient for large `memcpy`s. 
 
 **However**: it is also a great way to get a "single instruction" to do *a lot* of work. In this example program, we set `rcx` to `INT_MAX` and just copy over the same data forever:
-```
+```c++
 #define N ((1ul << 31) - 1)
 
 char src[N];
