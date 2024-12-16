@@ -7,8 +7,6 @@ layout: home
 ---
 ![steam-fish-1](./axel.jpg){: width="200" }
 
-__I am graduating soon and looking for jobs starting in March 2025. Please email me if you know of any interesting opportunities!__
-
 [axelf AT csail DOT mit DOT edu]
 [[Google Scholar](https://scholar.google.com/citations?user=QkpYowMAAAAJ&hl=en)] [[Github](https://github.com/axelfeldmann)] 
 

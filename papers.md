@@ -8,7 +8,8 @@ permalink: /research/
 
 * __Azul: An Accelerator for Sparse Iterative Solvers Leveraging Distributed On-Chip Memory__,
 <u>Axel Feldmann</u>, Courtney Golden, Yifan Yang, Joel S Emer, Daniel Sanchez,
-_to appear at MICRO 2024_
+_MICRO 2024_
+[[paper]](/micro24_iterative.pdf)
 
 * __Spatula: A Hardware Accelerator for Sparse Matrix Factorization__,
 <u>Axel Feldmann</u>, Daniel Sanchez,
@@ -40,9 +41,6 @@ _ASPLOS 2020_
 
 Sometimes, I help friends write custom GPU kernels for their machine learning papers :)
 
-* __MiniFold: Simple, Fast, and Accurate Protein Structure Prediction__,
-Jeremy Wohlwend, Mateo Reveiz, Matt McPartlon, <u>Axel Feldmann</u>, Wengong Jin, Regina Barzilay, _under submission to Neurips 2024_
-
 * __DsDm: Model-Aware Dataset Selection with Datamodels__,
 Logan Engstrom, <u>Axel Feldmann</u>, Aleksander Mądry, 
 _ICML 2024_
@@ -52,3 +50,6 @@ _ICML 2024_
 Stephanie Fu\*, Mark Hamilton\*, Laura Brandt, <u>Axel Feldmann</u>, Zhoutong Zhang, William T. Freeman
 _ICLR 2024_
 [[paper]](https://arxiv.org/pdf/2403.10516)
+
+* __MiniFold: Simple, Fast, and Accurate Protein Structure Prediction__,
+Jeremy Wohlwend, Mateo Reveiz, Matt McPartlon, <u>Axel Feldmann</u>, Wengong Jin, Regina Barzilay
