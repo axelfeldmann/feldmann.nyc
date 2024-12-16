@@ -99,9 +99,9 @@ l4:
 If we execute this program, then it will jump around as follows: `main -> l0 -> l2 -> l4 -> l1 -> l3 -> l0 -> ...` and repeat forever. To write this assembly, I provide two inputs: a prime number `P` and a smaller number `shift` to a simple Python script:
 ```python
 with open(f"jmps_{P}_{shift}.s", "w") as f:
-f.write(".global main\n")
-f.write("main:\n")
-f.write("\tjmp l0\n")
+    f.write(".global main\n")
+    f.write("main:\n")
+    f.write("\tjmp l0\n")
 
 for i in tqdm(range(P)):
     f.write(f"l{i}:\n")
