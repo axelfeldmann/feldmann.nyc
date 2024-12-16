@@ -242,7 +242,7 @@ This code, like the conflict-free loads, also runs in 0.57 ms for `num_iter = 10
 
 In this writeup, we looked at several different shared memory behaviors and tested them using some simple microbenchmarks. 
 
-Thanks to my good friend [Yifan Yang](https://yang-yifan.github.io) who helped with inventing + debugging microbenchmarks :)
+Thanks to my good friend [Yifan Yang](https://yang-yifan.github.io) who helped with inventing + debugging microbenchmarks.
 
 <br/>
 
@@ -252,4 +252,4 @@ Thanks to my good friend [Yifan Yang](https://yang-yifan.github.io) who helped w
 
 [^1]: [Not quite](https://developer.nvidia.com/blog/using-cuda-warp-level-primitives/#update_legacy_warp-level_programming), but close enough.
 [^2]: One interesting thing that I learned while putting together these microbenchmarks is that you can mark ptx instructions as volatile. Weird! What does it even mean for an instruction to be volatile? It turns out that  marking ptx instructions as volatile is a directive for the ptx assembler that lowers them to SASS. This volatile marking stops the ptx assembler from optimizing out all of my loads.
-[^3]: This also works with groups of 4 lanes and 4-vectors.
+[^3]: This also works with groups of 4 lanes and 4-wide vector loads.
