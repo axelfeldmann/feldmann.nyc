@@ -203,7 +203,7 @@ This code forces each group of 8 lanes to execute the 4 loads in a cyclically-sh
 
 ### Shared Vector Loads
 
-We can also use vector loads to _amplify_ shared memory bandwidth. Specifically, each pair of adjacent lanes can load _the same_ 2-vector of floats from shared memory[^3].
+We can also use vector loads to _amplify_ shared memory bandwidth. Specifically, each pair of adjacent lanes can load _the same_ 2-vector of floats from shared memory.
 
 Diagram:
 ![2amplify.svg](/posts/smem-microbenchmarks/2amplify.svg)
@@ -230,7 +230,37 @@ __global__ void yifan_multicast(float* result) {
 ```
 {% endraw %}
 
-This code, like the conflict-free loads, also runs in 0.57 ms for `num_iter = 100'000`. If we look from the perspective of the shared memory banks, each bank is servicing 1 load/cycle. This is the same as the conflict-free loads example. However, if we look from the perspective of the lanes, each lane is getting _2_ loads/cycle worth of data-- both `r.x` and `r.y`. Every value is being multicast to _both_ lanes that load it without introducing any performance penalties. This is very powerful! Despite the actual scratchpad bandwidth being unchanged, our threads are able to load _more_ stuff by taking advantage of this vector multicast.
+This code, like the conflict-free loads, also runs in 0.57 ms for `num_iter = 100'000`. If we look from the perspective of the shared memory banks, each bank is servicing 1 load/cycle. This is the same as the conflict-free loads example. However, if we look from the perspective of the lanes, each lane is getting _2_ loads/cycle worth of data-- both `r.x` and `r.y`. Every value is being multicast to _both_ lanes that load it without introducing any performance penalties. This is very powerful! Despite the actual per-bank throughput is unchanged, our threads are able to load _more_ stuff by taking advantage of this vector multicast.
+
+We can try the same thing with 4-wide vector loads:
+
+{% raw %}
+```cuda
+__global__ void yifan_multicast(float* result) {
+    __shared__ float sh[8][32];
+
+    int warp_id = threadIdx.y;
+    int lane_id = threadIdx.x;
+
+    float* ptr = &sh[warp_id][(lane_id / 4) * 4];z
+    int addr = (int)ptr & 0xFFFF;
+
+    float4 r;
+    for (int j = 0; j < num_iters; j++) {
+        asm volatile ("ld.volatile.shared.v4.f32 {%0,%1,%2,%3}, [%4];"
+                        : "=f"(r.x), "=f"(r.y), "=f"(r.z), "=f"(r.w)
+                        : "r"(addr));
+    }
+}
+```
+{% endraw %}
+
+However, in this case, we observe a 2x slowdown (~1.14ms). Because every instruction is loading 4 values,
+we're still getting 2-load/thread/cycle throughput (like the 2-wide vector load example), but we're *not* getting
+any additional throughput improvement over the 2-wide vector loads.
+I don't really know why this is the case, but maybe it's a lack of register file write ports?
+Definitely something to look into further.
+
 
 <br/>
 
@@ -252,5 +282,3 @@ Thanks to my good friend [Yifan Yang](https://yang-yifan.github.io) who helped w
 
 [^1]: [Not quite](https://developer.nvidia.com/blog/using-cuda-warp-level-primitives/#update_legacy_warp-level_programming), but close enough.
 [^2]: One interesting thing that I learned while putting together these microbenchmarks is that you can mark ptx instructions as volatile. Weird! What does it even mean for an instruction to be volatile? It turns out that  marking ptx instructions as volatile is a directive for the ptx assembler that lowers them to SASS. This volatile marking stops the ptx assembler from optimizing out all of my loads.
-[^3]: This also works with groups of 4 lanes and 4-wide vector loads, but in this case it takes 2 cycles instead of 1. Basically, we can get maximum 2x bandwidth amplification
-using this technique.
