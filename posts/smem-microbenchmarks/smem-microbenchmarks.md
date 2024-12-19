@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Notes About CUDA Shared Memory Banks
+title: Notes About Nvidia GPU Shared Memory Banks
 permalink: /blog/smem-microbenchmarks
 ---
 [December 19, 2024]
