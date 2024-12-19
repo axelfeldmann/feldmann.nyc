@@ -257,9 +257,9 @@ __global__ void multicast_quads(float* result) {
 
 However, in this case, we observe a 2x slowdown (~1.14ms). Because every instruction is loading 4 values,
 we're still getting 2-load/thread/cycle throughput (like the 2-wide vector load example), but we're *not* getting
-any additional throughput improvement over the 2-wide vector loads.
-I don't really know why this is the case, but maybe it's a lack of register file write ports?
-Definitely something to look into further.
+any *additional* throughput improvement over the 2-wide vector loads.
+I don't know exactly why this is the case, but maybe it's a lack of register file write ports?
+Definitely something I'll look into further.
 
 
 <br/>
