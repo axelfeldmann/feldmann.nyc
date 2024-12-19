@@ -211,7 +211,7 @@ Diagram:
 Code:
 {% raw %}
 ```cuda
-__global__ void yifan_multicast(float* result) {
+__global__ void multicast_pairs(float* result) {
     __shared__ float sh[8][32];
 
     int warp_id = threadIdx.y;
@@ -236,7 +236,7 @@ We can try the same thing with 4-wide vector loads:
 
 {% raw %}
 ```cuda
-__global__ void yifan_multicast(float* result) {
+__global__ void multicast_quads(float* result) {
     __shared__ float sh[8][32];
 
     int warp_id = threadIdx.y;
