@@ -3,6 +3,7 @@ layout: post
 title: Notes About CUDA Shared Memory Banks
 permalink: /blog/smem-microbenchmarks
 ---
+[December 19, 2024]
 
 Writing performant CUDA kernels requires a lot of thinking about memory. Loading/storing data from/to global memory is _much_ more throughput-constrained than doing arithmetic. To mitigate this, each of the GPU's streaming multiprocessors has its own small scratchpad memory where it can stash frequently used data and access it more cheaply. This scratchpad can be managed either _implicitly_ as an L1 cache or _explicitly_ as "shared memory."
 

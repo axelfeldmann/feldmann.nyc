@@ -3,6 +3,7 @@ layout: post
 title: Fast Random Projections in CUDA
 permalink: /blog/sparse-random-projections
 ---
+[August 15, 2024]
 
 Random projections are a powerful tool for dimensionality reduction. Specifically, if we start with $b$ points in $\mathbb{R}^D$, we can left-multiply all of them by a random matrix $R \in \mathbb{R}^{k \times D}$  (where $k \ll D$). We then end up with $b$ points in $\mathbb{R}^k$. It [turns out](https://en.wikipedia.org/wiki/Johnson%E2%80%93Lindenstrauss_lemma) that these projected points nearly preserve the distance relations of the original points.
 

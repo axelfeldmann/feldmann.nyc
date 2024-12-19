@@ -3,6 +3,7 @@ layout: post
 title: Writing Slow Code (On Purpose)
 permalink: /blog/low-ipc
 ---
+[September 15, 2024]
 
 Every few years, my research group holds a "slow code challenge." The objective is to write the code with the *lowest achieved* instructions per cycle (IPC) when run on a pre-selected x86 server.
 
