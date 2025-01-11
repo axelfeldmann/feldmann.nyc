@@ -5,21 +5,18 @@ permalink: /blog/carry-lookahead-adder
 ---
 [January 11, 2025]
 
-One of the main things that computers do is add numbers. Because they are computers, these numbers tend to be represented in binary. But, how do they do it?
-
-The most naive way to do it is to use the grade-school addition algorithm:
+One of the main things that computers do is add numbers. Because they are computers, these numbers tend to be represented in binary. We can compute the sum of two binary numbers with a base-2 version of the grade-school addition algorithm.
 
 <img src="/posts/carry-lookahead-adder/carry-lookahead-adder-grade-school-addition.drawio.svg" width="350" alt="grade-school-addition">
 
-The problem is that if we synthesize this into a digital circuit, it looks like this:
+If we naively synthesize this into a digital circuit, it looks like:
 
 <img src="/posts/carry-lookahead-adder/carry-lookahead-adder-rca.drawio.svg" width="700" alt="ripple-carry-adder">
 
 This design is called a "ripple carry adder" (RCA) and has a very long *critical path*. An $n$-bit adder capable of adding 2 $n$-bit numbers has $O(n)$ critical path length. For relevant values of $n$ (e.g. 32, 64), this is terrible!
+How can we do better?
 
-OK, so how can we do better?
-
-The answer is called a "carry lookahead adder" (CLA). A CLA has a critical path of $O(\log n)$. Much better! In this post, I will share a cool explanation of how they work. I did not come up with this explanation; I learned it from my grad school advisor, [Daniel Sanchez](https://people.csail.mit.edu/sanchez/).
+The answer is called a "carry lookahead adder" (CLA). A CLA has a critical path of $O(\log n)$. Much shorter! In this post, I will share a cool explanation of how CLAs work. I did not come up with this explanation; I learned it from my grad school advisor, [Daniel Sanchez](https://people.csail.mit.edu/sanchez/).
 
 <br/>
 
