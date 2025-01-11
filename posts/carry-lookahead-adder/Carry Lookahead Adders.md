@@ -132,20 +132,20 @@ Putting this all together, our carry lookahead adder has 4 main steps:
 In Python-like pseudocode, this might look something like this:
 ```python
 def get_func(ai, bi):
-	match (ai, bi):
-		case (0, 0): return Kill
-		case (0, 1): return Propagate
-		case (1, 0): return Propagate
-		case (1, 1): return Generate
+    match (ai, bi):
+        case (0, 0): return Kill
+        case (0, 1): return Propagate
+        case (1, 0): return Propagate
+        case (1, 1): return Generate
 
 def adder(a, b):
-	fs = [ get_func(ai, bi) for (ai, bi) in zip(a, b) ]
-	composed_fs = prefix_sum(fs, compose)
-	carry_outs = [ cf(0) for cf in composed_fs ]
+    fs = [ get_func(ai, bi) for (ai, bi) in zip(a, b) ]
+    composed_fs = prefix_sum(fs, compose)
+    carry_outs = [ cf(0) for cf in composed_fs ]
 
-	# shift the carries to align carry_outs with the next index
-	shifted_carry_outs = [ 0 ] + carry_outs[:-1]
-	return a xor b xor shifted_carry_outs
+    # shift the carries to align carry_outs with the next index
+    shifted_carry_outs = [ 0 ] + carry_outs[:-1]
+    return a xor b xor shifted_carry_outs
 ```
 
 And... that's it!
