@@ -40,6 +40,8 @@ header_pages:
   - resume.md
   - blog.md
 
+google_analytics: G-33YCBV8WXK
+
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
