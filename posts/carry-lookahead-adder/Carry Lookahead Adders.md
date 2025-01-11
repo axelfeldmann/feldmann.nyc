@@ -148,7 +148,11 @@ def adder(a, b):
     return a xor b xor shifted_carry_outs
 ```
 
-And... that's it!
+And... that's it.
+
+The coolest part here is that this approach generalizes beyond adders. 
+If we can express *any* computation as a chain of functions that can be *efficiently* composed, we can apply the same
+trick to get an $O(\log n)$ critical path. This is really powerful! 
 
 Notes:
 - if we represent our carry functions as Python `lambda`s, we don't actually get the efficient function composition discussed in Observation 4, but I think it makes it clearer what's going on
