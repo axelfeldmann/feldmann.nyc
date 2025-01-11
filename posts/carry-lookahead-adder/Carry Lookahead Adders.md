@@ -15,7 +15,9 @@ If we naively synthesize this into a digital circuit, it looks like:
 
 This design is called a "ripple carry adder" (RCA) and has a very long *critical path* (shown in green). An $n$-bit adder capable of adding 2 $n$-bit numbers has $O(n)$ critical path length. For relevant values of $n$ (e.g. 32, 64), this is terrible! How can we do better?
 
-The answer is called a "carry lookahead adder" (CLA). A CLA has a critical path of $O(\log n)$. Much shorter! In this post, I will share a cool explanation of how CLAs work. I did not come up with this explanation; I learned it from my grad school advisor, [Daniel Sanchez](https://people.csail.mit.edu/sanchez/).
+The answer is called a "carry lookahead adder" (CLA). A CLA has a critical path of $O(\log n)$. Much shorter! In this post, I will share a cool explanation of how CLAs work
+that relies primarily on *function composition*. 
+I did not come up with this explanation; I learned it from my grad school advisor, [Daniel Sanchez](https://people.csail.mit.edu/sanchez/).
 
 <br/>
 
@@ -63,7 +65,7 @@ $$
 
 <br/>
 
-### Observation 3: We can get a critical path of $O(\log n)$ carry function compositions
+### Observation 3: We can get a critical path of $O(\log n)$ function compositions
 
 Let's think about an 8-bit adder. Given our carry functions
 
