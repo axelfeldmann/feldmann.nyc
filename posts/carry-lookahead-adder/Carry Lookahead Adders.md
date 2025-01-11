@@ -98,7 +98,7 @@ Example:
 
 <br/>
 
-### Observation 4: Carry function composition can be implemented efficiently
+### Observation 4: Carry function composition *can* be implemented efficiently
 
 So far, we've shown that we can compute carries with $O(\log n)$ carry function composition on the critical path. However, this is only a good idea if we can _efficiently_ compose functions.
 
@@ -150,7 +150,8 @@ def adder(a, b):
 
 And... that's it.
 
-The coolest part here is that this approach generalizes beyond adders. 
+The coolest part here is that this approach generalizes beyond adders. The only operation we did here was function
+composition... nothing else!
 If we can express *any* computation as a chain of functions that can be *efficiently* composed, we can apply the same
 trick to get an $O(\log n)$ critical path. This is really powerful! 
 
