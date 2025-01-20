@@ -131,24 +131,7 @@ Putting this all together, our carry lookahead adder has 4 main steps:
 3. applying the composed carry functions to $0$
 4. xoring the carries with `a` and `b` to actually do the addition
 
-In Python-like pseudocode, this might look something like this:
-```python
-def get_func(ai, bi):
-    match (ai, bi):
-        case (0, 0): return Kill
-        case (0, 1): return Propagate
-        case (1, 0): return Propagate
-        case (1, 1): return Generate
-
-def adder(a, b):
-    fs = [ get_func(ai, bi) for (ai, bi) in zip(a, b) ]
-    composed_fs = prefix_sum(fs, compose)
-    carry_outs = [ cf(0) for cf in composed_fs ]
-
-    # shift the carries to align carry_outs with the next index
-    shifted_carry_outs = [ 0 ] + carry_outs[:-1]
-    return a xor b xor shifted_carry_outs
-```
+<img src="/posts/carry-lookahead-adder/carry-lookahead-adder-cla.drawio.svg" width="100%" alt="parallel-prefix-sum">
 
 And... that's it.
 
