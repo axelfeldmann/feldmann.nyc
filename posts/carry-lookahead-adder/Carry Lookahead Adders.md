@@ -133,7 +133,7 @@ Putting this all together, our carry lookahead adder has 4 main steps:
 
 <img src="/posts/carry-lookahead-adder/carry-lookahead-adder-cla.drawio.svg" width="100%" alt="parallel-prefix-sum">
 
-And... that's it.
+Note: the thin black arrows carry 1-bit values and the thick green arrows carry _1-bit functions_ (encoded in 2 bits).
 
 The coolest part here is that this approach generalizes beyond adders. The only operation we did here was function
 composition... nothing else!
