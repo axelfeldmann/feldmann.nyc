@@ -7,17 +7,11 @@ layout: home
 ---
 ![steam-fish-1](./axel.jpg){: width="200" }
 
-[axelf AT csail DOT mit DOT edu]
+[axel DOT s DOT feldmann AT gmail DOT com]
 [[Google Scholar](https://scholar.google.com/citations?user=QkpYowMAAAAJ&hl=en)] [[Github](https://github.com/axelfeldmann)] 
 
-I am a final year PhD student studying computer architecture at MIT. I'm advised by Professor [Daniel Sanchez](http://people.csail.mit.edu/sanchez/). I am interested in working across the hardware-software interface: designing new hardware, but also building the software needed to efficiently use it.
+I am currently an ML performance engineer at Jane Street. I spend most days trying to convince our GPUs to go faster.
 
-I'm currently working on [accelerating sparse linear algebra](./micro23_factorization.pdf), and I'm super excited to learn more about
-scientific computing/numerical algorithms in general!
-I used to work on [accelerating computation on encrypted data](./micro21_fhe.pdf).
+Before that, I did a PhD in computer architecture at MIT. I was advised by Professor [Daniel Sanchez](http://people.csail.mit.edu/sanchez/). I worked on hardware accelerator research: both designing and programming weird and wonderful architectures.
 
-I did my undergrad at CMU. There, I got started in computer architecture research with Professor [Nathan Beckmann](https://www.cs.cmu.edu/~beckmann/).
-I had summer internships at Cerebras Systems, Nvidia, and beloved 90s tech company Yahoo.
-
-
-<!-- [Resume](/axelf_resume.pdf) -->
+Not up to date [resume](/axelf_resume.pdf)
